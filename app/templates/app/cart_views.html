@@ -1,0 +1,34 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+
+<h2>Giỏ hàng của bạn</h2>
+<ul>
+    {% if cart %}
+        {% for item in cart %}
+            <li data-product-id="{{ item.product.id }}">
+                {{ item.product.name }} - 
+                Số lượng: {{ item.quantity }} -
+                Giá: {{ item.product.price }}
+                <!-- Xóa sản phẩm khỏi giỏ hàng -->
+                <form method="post" action="{% url 'delete_product' item.product.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="button">Delete</button>
+                </form>            
+            </li>
+        {% endfor %}
+    {% else %}
+        <li>Giỏ hàng của bạn đang trống.</li>
+    {% endif %}
+</ul>
+
+
+<!-- Liên kết để quay lại mua sắm -->
+<button class="button" onclick="redirect('{% url 'product_list' %}')">Tiếp tục mua sắm</button>
+
+<!-- Nút thanh toán -->
+<button class="button" onclick="redirect('{% url 'checkout' user.pk %}')">Thanh toán</a>
+
+{% endblock %}
+

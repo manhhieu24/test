@@ -1,0 +1,165 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<!-- shop/product_detail.html -->
+
+<h1>{{ product.name }}</h1>
+<p>{{ product.description }}</p>
+<p>Price: {{ product.price }}</p>
+<p>Chủ shop: {{ product.owner_shop }} {% if user.is_authenticated %}<button type="button" class="button" onclick="redirect('{% url 'chat' product.owner_shop.pk %}')">Chat with shop</button>{% endif %}</p>
+
+
+{% if product.image %}
+    <img src="{{ product.image.url }}" width="400">
+{% endif %}
+{% if user.is_authenticated and user == product.owner_shop %}
+    <a href="{% url 'edit_product' product.pk %}">Edit</a>
+{% endif %}
+
+{% if user.is_authenticated %}
+    <form method="post" id="cart-form">
+        {% csrf_token %}
+        <button type="submit" class="button" name="add_to_cart">Add to cart</button>
+    </form>
+    <br>
+    <button class="button" onclick="redirect('{% url 'cart_views' user.pk %}')">Go to cart</button>
+        
+    <div class="cart-view">
+        <h2>Giỏ hàng của bạn</h2> 
+       <ul>
+            {% if cart %}
+                <li>
+                    Số lượng: {{ cart.quantity }} 
+                    <!-- Xóa sản phẩm khỏi giỏ hàng -->
+                    <form method="post" action="{% url 'delete_product' product.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button">Delete</button>
+                    </form>           
+                </li>
+            {% else %}
+                <li>Giỏ hàng của bạn đang trống.</li>
+            {% endif %}
+        </ul> 
+    </div> 
+{% else %}
+    <p>Bạn phải đăng nhập để mua sản phẩm</p>
+{% endif %}
+
+<hr>
+<h2>Related Products</h2>
+<div class="related-product-list">
+    {% for related_product in related_products %}
+        <div>
+            <a href="{% url 'product_detail' related_product.pk %}">
+            {% if related_product.image %}
+              <img src="{{ related_product.image.url }}" width="100"><br>
+            {% endif %}
+            {{ related_product.name }}</a>
+            <p>Price: ${{ related_product.price }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<hr>
+<div class="comments-section">
+<span class="heading">Đánh giá sản phẩm:</span>
+<span class="fa fa-star {% if average_stars >= 1 %}checked{% endif %}"></span>
+<span class="fa fa-star {% if average_stars >= 2 %}checked{% endif %}"></span>
+<span class="fa fa-star {% if average_stars >= 3 %}checked{% endif %}"></span>
+<span class="fa fa-star {% if average_stars >= 4 %}checked{% endif %}"></span>
+<span class="fa fa-star {% if average_stars >= 5 %}checked{% endif %}"></span>
+<p>{{  total_comments }} reviews.</p>
+<hr style="border:3px solid #f1f1f1">
+
+<div class="row">
+  <div class="side">
+    <div>5 star</div>
+  </div>
+  <div class="middle">
+    <div class="bar-container">
+      <div class="bar-5" style="width: {{ star_percentage.5 }}%"></div>
+    </div>
+  </div>
+  <div class="side right">
+    <div> {{ star_count_dict.5 }} </div>
+  </div>
+  <div class="side">
+    <div>4 star</div>
+  </div>
+  <div class="middle">
+    <div class="bar-container">
+      <div class="bar-4" style="width: {{ star_percentage.4 }}%"></div>
+    </div>
+  </div>
+  <div class="side right">
+    <div>{{ star_count_dict.4 }}  </div>
+  </div>
+  <div class="side">
+    <div>3 star</div>
+  </div>
+  <div class="middle">
+    <div class="bar-container">
+      <div class="bar-3" style="width: {{ star_percentage.3 }}%"></div>
+    </div>
+  </div>
+  <div class="side right">
+    <div>{{ star_count_dict.3 }} </div>
+  </div>
+  <div class="side">
+    <div>2 star</div>
+  </div>
+  <div class="middle">
+    <div class="bar-container">
+      <div class="bar-2" style="width: {{ star_percentage.2 }}%"></div>
+    </div>
+  </div>
+  <div class="side right">
+    <div>{{ star_count_dict.2 }} </div>
+  </div>
+  <div class="side">
+    <div>1 star</div>
+  </div>
+  <div class="middle">
+    <div class="bar-container">
+      <div class="bar-1" style="width: {{ star_percentage.1 }}%"></div>
+    </div>
+  </div>
+  <div class="side right">
+    <div>{{ star_count_dict.1 }} </div>
+  </div>
+</div>
+    <h2>Bình luận</h2>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                <strong>{{ comment.customer.username }}</strong>:<br> Đánh giá             
+                <span class="fa fa-star {% if comment.stars >= 1 %}checked{% endif %}"></span>
+                <span class="fa fa-star {% if comment.stars >= 2 %}checked{% endif %}"></span>
+                <span class="fa fa-star {% if comment.stars >= 3 %}checked{% endif %}"></span>
+                <span class="fa fa-star {% if comment.stars >= 4 %}checked{% endif %}"></span>
+                <span class="fa fa-star {% if comment.stars >= 5 %}checked{% endif %}"></span>
+                <p>{{ comment.content }}</p>
+                {% if comment.image %}
+                    <img src="{{ comment.image.url }}" alt="Comment Image" style="max-width: 200px; max-height: 200px;">
+                {% endif %}
+                <em>{{ comment.created_date }}</em>
+  
+            </li>
+        {% endfor %}
+    </ul>
+    {% if form %}
+    <form method="post" enctype="multipart/form-data" class="custom-content-class" >
+        {% csrf_token %}
+        <table>
+         {{ form.as_table }}
+        </table>
+        <button type="submit" name="add_comment" class="button">Submit</button>
+    </form>
+    {% endif %}
+</div>
+
+
+<br>
+    <button type="button" class="button" onclick="goBack()">Back</button>
+
+{% endblock %}

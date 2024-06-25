@@ -1,0 +1,25 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <h3>Danh sách liên hệ</h3>
+    <ul>
+        {% for conversation in conversations %}
+            {% if conversation.sender == request.user %}
+                <li class="grid-container">
+                    <a href="{% url 'chat' conversation.receiver.pk %}">
+                        Chat with {{ conversation.receiver.username }}
+                    </a>
+                    <button class="button" onclick="redirect('{% url 'delete_conversation' conversation.receiver.pk %}')">Delete</button>
+                </li>
+            {% else %}
+                <li class="grid-container">
+                    <a href="{% url 'chat' conversation.sender.pk %}">
+                        Chat with {{ conversation.sender.username }}
+                    </a>
+                    <button class="button" onclick="redirect('{% url 'delete_conversation' conversation.sender.pk %}')">Delete</button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+  
+{% endblock %}
