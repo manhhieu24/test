@@ -17,5 +17,5 @@
       "dest": "demo/wsgi.py"
     }
   ],
-  "outputDirectory": "app/staticfiles"
+  "outputDirectory": "staticfiles"
 }
